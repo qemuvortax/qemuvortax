@@ -1,0 +1,583 @@
+name: Qemu-Vortax V 2.1
+
+on:
+  workflow_dispatch:
+    inputs:
+      system_choice:
+        description: 'Choose a ready system (bazite, bliss, centos_qcow2, cutefish, debian_qcow2, deepin, garuda_mokka, kali, manjaro, mint, pear, pop_os, ubuntu, win7)'
+        required: false
+        default: ''
+      boot_mode:
+        description: 'Choose boot type: iso or qcow2'
+        required: true
+        default: 'qcow2'
+      source_url:
+        description: 'Custom source URL (optional)'
+        required: false
+        default: ''
+      vm_name:
+        description: 'Name of the system/disk'
+        required: true
+        default: 'ME2008'
+      runtime:
+        description: 'Runtime duration in minutes (default 350)'
+        required: false
+        default: '335'
+      connection_method:
+        description: 'Choose connection method: tailscale or ngrok'
+        required: true
+        default: 'tailscale'
+      connection_program:
+        description: 'Select program (RDP, VNC, NoMachine)'
+        required: true
+        default: 'VNC'
+      bios_mode:
+        description: 'Choose firmware mode: UEFI or BIOS (default UEFI)'
+        required: true
+        default: 'BIOS'
+      vnc_password:
+        description: 'VNC password'
+        required: true
+        default: 'runner'
+      upload_qcow2:
+        description: 'Upload QCOW2 file to Mega: yes or no'
+        required: true
+        default: 'yes'
+
+permissions:
+  contents: read
+
+jobs:
+  setup-and-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      USERNAME: runner
+      PASSWORD: runner
+      TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+      NGROK_AUTH: ${{ secrets.NGROK_AUTH }}
+      FINAL_SOURCE_URL: ''
+      RUNNER_TEMP: /mnt/tmp
+      ACTIONS_RUNNER_CACHE: /mnt/cache
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare user and sudo
+        run: |
+          echo "Setting password for user..."
+          echo "${USERNAME}:${PASSWORD}" | sudo chpasswd > /dev/null 2>&1
+          echo "Configuring sudoers..."
+          echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/${USERNAME} > /dev/null 2>&1
+          echo "Creating temp directories..."
+          sudo mkdir -p /mnt/tmp /mnt/cache > /dev/null 2>&1
+          echo "Fixing permissions for temp directories..."
+          sudo chmod -R 777 /mnt/tmp /mnt/cache > /dev/null 2>&1
+
+      - name: Setup Connection (Tailscale or Ngrok)
+        run: |
+          METHOD="${{ github.event.inputs.connection_method }}"
+          if [ "$METHOD" = "tailscale" ]; then
+            echo "Installing Tailscale..."
+            curl -fsSL https://tailscale.com/install.sh | sudo sh > /dev/null 2>&1
+            echo "Starting Tailscale..."
+            sudo tailscale up --authkey "${TAILSCALE_AUTHKEY}" --hostname "gh-xfce-vm-${{ github.run_id }}" --accept-routes --accept-dns=false
+            TS_IP=$(sudo tailscale ip -4 | head -n1)
+            echo "CONNECTION_IP=$TS_IP" >> $GITHUB_ENV
+            echo "CONNECTION_TYPE=Tailscale" >> $GITHUB_ENV
+          elif [ "$METHOD" = "ngrok" ]; then
+            echo "Downloading Ngrok..."
+            wget -q -O ngrok.zip https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip > /dev/null 2>&1
+            echo "Extracting Ngrok..."
+            unzip -q ngrok.zip > /dev/null 2>&1
+            echo "Installing Ngrok..."
+            sudo mv ngrok /usr/local/bin/ > /dev/null 2>&1
+            echo "Configuring Ngrok auth..."
+            ngrok config add-authtoken "${NGROK_AUTH}"
+            echo "CONNECTION_TYPE=Ngrok" >> $GITHUB_ENV
+          else
+            exit 1
+          fi
+
+      - name: Install XFCE + RDP + NoMachine
+        run: |
+          echo "Updating package lists..."
+          sudo apt-get update -qq > /dev/null 2>&1
+          echo "Installing MegaTools + pip..."
+          sudo apt install -y megatools python3-pip > /dev/null 2>&1
+          echo "Installing Python libs..."
+          pip install rich requests > /dev/null 2>&1
+          echo "Downloading Mega CLI..."
+          curl -L "https://gitlab.com/MR.English2008/Mega_Gen/-/raw/main/maga_gen_cli.py" -o mega_gen_cli.py > /dev/null 2>&1
+          chmod +x mega_gen_cli.py > /dev/null 2>&1
+          echo "Running Mega CLI..."
+          python3 mega_gen_cli.py > /dev/null 2>&1
+          echo "Downloading virtio-win.iso "
+          sudo wget -O /mnt/virtio-win.iso "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.96/virtio-win.iso" > /dev/null 2>&1
+          echo "Installing VNC, wmctrl, wget, IA..."
+          sudo apt-get install -y jq tigervnc-viewer wmctrl wget internetarchive genisoimage > /dev/null 2>&1
+          echo "Downloading NoMachine..."
+          wget -q https://web9001.nomachine.com/download/9.2/Linux/nomachine_9.2.18_3_amd64.deb -O nomachine.deb > /dev/null 2>&1
+          echo "Installing NoMachine..."
+          sudo dpkg -i nomachine.deb > /dev/null 2>&1 || sudo apt-get -f install -y > /dev/null 2>&1
+          rm nomachine.deb > /dev/null 2>&1
+          echo "Installing XFCE + XRDP..."
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq xfce4 xfce4-goodies xorg dbus-x11 xrdp > /dev/null 2>&1
+          echo "Configuring .xsession..."
+          echo "startxfce4" | sudo tee /home/${USERNAME}/.xsession > /dev/null 2>&1
+          sudo chown ${USERNAME}:${USERNAME} /home/${USERNAME}/.xsession > /dev/null 2>&1
+          echo "Configuring system xsession..."
+          echo "exec startxfce4" | sudo tee /etc/skel/.xsession > /dev/null 2>&1
+          echo "startxfce4" | sudo tee /etc/skel/.xinitrc > /dev/null 2>&1
+          echo "Configuring firewall..."
+          sudo ufw allow 4000/tcp > /dev/null 2>&1
+          sudo ufw allow 4011:4999/tcp > /dev/null 2>&1
+          sudo ufw allow 5900/tcp > /dev/null 2>&1
+          sudo ufw allow 3389/tcp > /dev/null 2>&1
+          sudo ufw --force enable > /dev/null 2>&1 || true
+          echo "Starting XRDP..."
+          sudo systemctl enable --now xrdp > /dev/null 2>&1
+          sudo systemctl restart xrdp > /dev/null 2>&1
+
+      - name: Install QEMU, OVMF, and components
+        run: |
+          echo "Updating package lists..."
+          sudo apt-get update -qq > /dev/null 2>&1
+          echo "Installing QEMU + components..."
+          sudo apt-get install -y -qq qemu-system-x86 ovmf novnc websockify wget curl unzip p7zip-full unrar-free tar python3-pip > /dev/null 2>&1
+          echo "Installing internetarchive..."
+          pip install internetarchive > /dev/null 2>&1
+          echo "Cloning badown..."
+          git clone https://github.com/stck-lzm/badown ~/badown > /dev/null 2>&1
+          chmod +x ~/badown/badown > /dev/null 2>&1
+          sudo touch ~/badown/.badown.tmp > /dev/null 2>&1
+          
+      - name: Determine source URL
+        id: determine_url
+        run: |
+          CHOICE="${{ github.event.inputs.system_choice }}"
+          USER_URL="${{ github.event.inputs.source_url }}"
+          BOOT_MODE="${{ github.event.inputs.boot_mode }}"
+
+          declare -A ISO_URLS
+          ISO_URLS["bazite"]="https://download.bazzite.gg/bazzite-stable-live.iso"
+          ISO_URLS["bliss"]="https://dn720203.ca.archive.org/0/items/Bliss-v15.9-x86_64-OFFICIAL-gapps-20240114/Bliss-v15.9-x86_64-OFFICIAL-gapps-20240114.iso"
+          ISO_URLS["cutefish"]="https://netix.dl.sourceforge.net/project/cutefish-ubuntu/ISO/Ubuntu/CutefishOS-22.04.0-YoYo-beta-amd64.iso?viasf=1"
+          ISO_URLS["deepin"]="https://cdimage-cdn77.deepin.com/deepin-cd/25.0.1/amd64/deepin-desktop-community-25.0.1-amd64.iso"
+          ISO_URLS["garuda_mokka"]="https://r2.garudalinux.org/iso/garuda/mokka/251002/garuda-mokka-linux-zen-251002.iso?r2request"
+          ISO_URLS["kali"]="https://kali.download/base-images/kali-2025.3/kali-linux-2025.3-live-amd64.iso"
+          ISO_URLS["manjaro"]="https://download.manjaro.org/gnome/25.0.10/manjaro-gnome-25.0.10-251013-linux612.iso"
+          ISO_URLS["mint"]="https://pub.linuxmint.io/stable/22.2/linuxmint-22.2-cinnamon-64bit.iso"
+          ISO_URLS["pear"]="https://www.mediafire.com/file/7ztcyqd2ggiv58p/pearOS-NiceC0re-2025.11-x86_64.iso"
+          ISO_URLS["pop_os"]="https://iso.pop-os.org/22.04/amd64/intel/58/pop-os_22.04_amd64_intel_58.iso"
+          ISO_URLS["ubuntu"]="https://releases.ubuntu.com/25.10/ubuntu-25.10-desktop-amd64.iso"
+
+          declare -A QCOW2_URLS
+          QCOW2_URLS["centos_qcow2"]="https://cloud.centos.org/centos/10-stream/x86_64/images/CCentOS-Stream-GenericCloud-x86_64-10-latest.x86_64.qcow2"
+          QCOW2_URLS["debian_qcow2"]="https://chuangtzu.ftp.acc.umu.se/images/cloud/bookworm/20251006-2257/debian-12-generic-amd64-20251006-2257.qcow2"
+          QCOW2_URLS["deepin"]="https://www.mediafire.com/file/ozwa2vyxt4hz6wu/dipeen.7z/"
+          QCOW2_URLS["kali"]="https://kali.mirror.garr.it/kali-images/current/kali-linux-2025.3-qemu-amd64.7z"
+          QCOW2_URLS["mint"]="https://www.mediafire.com/file/a4qyactev4kzc0q/mint.7z/"
+          QCOW2_URLS["pop_os"]="https://www.mediafire.com/file/lbrebo479z4fq3g/pop_os.7z/"
+          QCOW2_URLS["bliss"]="https://www.mediafire.com/file/2zuxhk4dtqa735l/bliss.7z/"
+          QCOW2_URLS["XP"]="https://www.mediafire.com/file/nbfd1zer1zjnm7c/XP.7z"
+          QCOW2_URLS["Vista"]="https://www.mediafire.com/file/f9fqa9oupypugbo/Vista.7z"
+          QCOW2_URLS["win7"]="https://www.mediafire.com/file/py5c5n111ns72x0/win7.7z"
+          QCOW2_URLS["win8.1"]="https://www.mediafire.com/file/tn4ojkrkg2cbvcs/win8.1.7z"
+          QCOW2_URLS["win10"]="https://www.mediafire.com/file/uae3un0o27obbgv/win10.7z"
+          QCOW2_URLS["win11"]="https://www.mediafire.com/file/cfcaoebixpl0j8m/win11.7z"
+          
+          FINAL_URL="$USER_URL"
+          if [[ -z "$FINAL_URL" && -n "$CHOICE" ]]; then
+            if [[ "$BOOT_MODE" == "iso" ]]; then
+              FINAL_URL="${ISO_URLS[$CHOICE]}"
+            elif [[ "$BOOT_MODE" == "qcow2" ]]; then
+              FINAL_URL="${QCOW2_URLS[$CHOICE]}"
+            fi
+           
+            if [[ -z "$FINAL_URL" ]]; then
+               echo "::error::No valid URL found for choice '$CHOICE' with boot_mode '$BOOT_MODE'."
+               exit 1
+            fi
+          fi
+       
+          if [[ -z "$FINAL_URL" ]]; then
+            FINAL_URL="${ISO_URLS["bliss"]}" 
+            echo "::notice::No system choice provided. Defaulting to Bliss ISO."
+          fi
+
+          echo "FINAL_SOURCE_URL=$FINAL_URL" >> $GITHUB_ENV
+          
+      - name: Configure VM specs
+        run: |
+          DISK=60
+          if [ "${{ github.event.repository.private }}" = "true" ]; then
+            RAM=6
+          else
+            RAM=14
+          fi
+          VCPUS=2
+          echo "RAM=$RAM" >> $GITHUB_ENV
+          echo "DISK=$DISK" >> $GITHUB_ENV
+          echo "VCPUS=$VCPUS" >> $GITHUB_ENV
+          
+      - name: Prepare files and disks
+        run: |
+          MODE="${{ github.event.inputs.boot_mode }}"
+          SRC="${{ env.FINAL_SOURCE_URL }}"
+          VM="${{ github.event.inputs.vm_name }}"
+          DISK="${{ env.DISK }}"
+          HOME_PATH="$HOME"
+          MNT_PATH="/mnt"
+          TEMP_PATH="/mnt/tmp_unpack"
+          FILE_PATH="$TEMP_PATH/source_file"
+          sudo mkdir -p "$TEMP_PATH"
+
+          if [[ "$SRC" == *"archive.org/download/"* ]]; then
+            echo "Detected Internet Archive source..."
+            ITEM=$(basename "$(dirname "$SRC")")
+            FILE=$(basename "$SRC")
+            CMD="ia download $ITEM $FILE"
+            echo "Downloading using: $CMD"
+            eval "$CMD"
+            FOUND_FILE=$(find . -type f -name "$FILE" | head -n1)
+            if [ -f "$FOUND_FILE" ]; then
+              sudo mv "$FOUND_FILE" "$FILE_PATH"
+            else
+              echo "Error: No valid file found from archive.org"
+              exit 1
+            fi
+          elif [[ "$SRC" == *"mediafire.com"* || "$SRC" == *"mega.nz"* ]]; then
+            echo "Using badown to download from: $SRC"
+            cd ~/badown
+            CACHE_FILE="/tmp/badown_cache.log"
+            : > "$CACHE_FILE"
+            (
+              sudo ./badown "$SRC" >"$CACHE_FILE" 2>&1 &
+              pid=$!
+              last_update=$(date +%s)
+              progress=""
+              while kill -0 $pid 2>/dev/null; do
+                now=$(date +%s)
+                if (( now - last_update >= 10 )); then
+                  new_progress=$(grep -Eo '[0-9]{1,3}%' "$CACHE_FILE" | tail -n1)
+                  if [[ -n "$new_progress" ]]; then
+                    progress="$new_progress"
+                    echo "Downloading... $progress"
+                  else
+                    echo "Downloading..."
+                  fi
+                  last_update=$now
+                fi
+                sleep 0.2
+              done
+              wait $pid
+            )
+            DOWNLOADED=$(ls -t | head -n1)
+            sudo mv "$DOWNLOADED" "$FILE_PATH"
+            
+          else
+            echo "Downloading system file via wget..."
+            sudo wget -q --user-agent="Mozilla/5.0" --trust-server-names --content-disposition -O "$FILE_PATH" "$SRC"
+          fi
+
+          EXT=$(file -b --mime-type "$FILE_PATH")
+          if [[ "$EXT" == *"iso"* && "$MODE" == "iso" ]]; then
+            sudo mv "$FILE_PATH" "$HOME_PATH/${VM}.iso"
+            sudo qemu-img create -f qcow2 "$MNT_PATH/${VM}.qcow2" "${DISK}G"
+          elif [[ "$EXT" == *"iso"* && "$MODE" == "qcow2" ]]; then
+            sudo mv "$FILE_PATH" "$HOME_PATH/${VM}.iso"
+            sudo qemu-img create -f qcow2 "$MNT_PATH/${VM}.qcow2" "${DISK}G"
+          elif [[ "$EXT" == *"zip"* || "$EXT" == *"7z"* || "$EXT" == *"rar"* || "$EXT" == *"tar"* || "$EXT" == *"gzip"* ]]; then
+            cd "$TEMP_PATH"
+            if [[ "$EXT" == *"zip"* ]]; then
+              sudo unzip -q "$FILE_PATH" -d "$TEMP_PATH"
+            elif [[ "$EXT" == *"7z"* ]]; then
+              sudo 7z x -y "$FILE_PATH" > /dev/null
+            elif [[ "$EXT" == *"rar"* ]]; then
+              sudo unrar x -inul "$FILE_PATH"
+            else
+              sudo tar -xf "$FILE_PATH"
+            fi
+            FOUND=$(find "$TEMP_PATH" -type f -iname "*.qcow2" -o -iname "*.img" | head -n 1)
+            if [ -n "$FOUND" ]; then
+              sudo mv "$FOUND" "$MNT_PATH/${VM}.qcow2"
+            else
+              if [ ! -f "$HOME_PATH/${VM}.iso" ] && [ ! -f "$MNT_PATH/${VM}.qcow2" ]; then
+                ARCHIVE_FOUND=$(find "$TEMP_PATH" -type f -iname "*.tar.gz" -o -iname "*.tar" -o -iname "*.zip" -o -iname "*.7z" | head -n1)
+                if [ -n "$ARCHIVE_FOUND" ]; then
+                    mkdir -p "$TEMP_PATH/unpack"
+                    EXT=$(file -b --mime-type "$ARCHIVE_FOUND")
+                    if [[ "$EXT" == *"zip"* ]]; then
+                        unzip -q "$ARCHIVE_FOUND" -d "$TEMP_PATH/unpack"
+                    elif [[ "$EXT" == *"7z"* ]]; then
+                        7z x "$ARCHIVE_FOUND" -o"$TEMP_PATH/unpack" > /dev/null
+                    else
+                        tar -xf "$ARCHIVE_FOUND" -C "$TEMP_PATH/unpack"
+                    fi
+                    mkisofs -o "$HOME_PATH/${VM}.iso" -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -J -R "$TEMP_PATH/unpack"
+                    rm -rf "$TEMP_PATH/unpack"
+                fi
+              fi
+            fi
+          fi
+          sudo rm -rf "$TEMP_PATH"
+
+          
+      - name: Upload badown log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: badown_cache_log
+          path: /tmp/badown_cache.log
+
+      - name: Run the VM
+        run: |
+          MODE="${{ github.event.inputs.boot_mode }}"
+          BIOS_MODE="${{ github.event.inputs.bios_mode }}"
+          VM="${{ github.event.inputs.vm_name }}"
+          VCPUS="${{ env.VCPUS }}"
+          RAM="${{ env.RAM }}"
+          HOME_PATH="$HOME"
+          MNT_PATH="/mnt"
+          ISO_PATH="$HOME_PATH/${VM}.iso"
+          DISK_PATH="$MNT_PATH/${VM}.qcow2"
+          
+          wget -q https://gitlab.com/MR.English2008/qemu-pre-build-ovfm.fd-files/-/raw/main/OVMF_CODE.fd -O OVMF_CODE.fd
+          wget -q https://gitlab.com/MR.English2008/qemu-pre-build-ovfm.fd-files/-/raw/main/OVMF_VARS.fd -O OVMF_VARS.fd
+          CODE_PATH=./OVMF_CODE.fd
+          VARS_PATH=./OVMF_VARS.fd
+          echo "downloaded from gitlab new links"
+
+          if [ ! -f "$DISK_PATH" ]; then
+            sudo qemu-img create -f qcow2 "$DISK_PATH" "${DISK}G" || true
+          fi
+
+          if [ "$BIOS_MODE" = "UEFI" ]; then
+            if [ -f "$ISO_PATH" ]; then
+              sudo qemu-system-x86_64 \
+                -enable-kvm \
+                -cpu host \
+                -smp ${VCPUS} \
+                -m ${RAM}G \
+                -boot d \
+                -cdrom "$ISO_PATH" \
+                -drive if=none,id=hd0,file="$DISK_PATH",format=qcow2 \
+                -device virtio-blk-pci,drive=hd0 \
+                -drive if=pflash,format=raw,readonly=on,file="$CODE_PATH" \
+                -drive if=pflash,format=raw,file="$VARS_PATH" \
+                -vnc :0,password=on \
+                -monitor tcp:localhost:4444,server,nowait \
+                -display none \
+                -netdev user,id=net0 \
+                -device e1000,netdev=net0 \
+                -device usb-ehci,id=ehci \
+                -device usb-tablet,bus=ehci.0 \
+                -drive file=/mnt/virtio-win.iso,media=cdrom,if=none,id=cd1 \
+                -device ide-cd,bus=ide.1,drive=cd1 \
+                -name "$VM" &
+            else
+              sudo qemu-system-x86_64 \
+                -enable-kvm \
+                -cpu host \
+                -smp ${VCPUS} \
+                -m ${RAM}G \
+                -hda "$DISK_PATH" \
+                -drive if=pflash,format=raw,readonly=on,file="$CODE_PATH" \
+                -drive if=pflash,format=raw,file="$VARS_PATH" \
+                -boot c \
+                -vnc :0,password=on \
+                -monitor tcp:localhost:4444,server,nowait \
+                -display none \
+                -netdev user,id=net0 \
+                -device e1000,netdev=net0 \
+                -device usb-ehci,id=ehci \
+                -device usb-tablet,bus=ehci.0 \
+                -drive file=/mnt/virtio-win.iso,media=cdrom,if=none,id=cd1 \
+                -device ide-cd,bus=ide.1,drive=cd1 \
+                -name "$VM" &
+            fi
+          else
+            if [ -f "$ISO_PATH" ]; then
+              sudo qemu-system-x86_64 \
+                -enable-kvm \
+                -cpu host \
+                -smp ${VCPUS} \
+                -m ${RAM}G \
+                -boot d \
+                -cdrom "$ISO_PATH" \
+                -hda "$DISK_PATH" \
+                -vnc :0,password=on \
+                -monitor tcp:localhost:4444,server,nowait \
+                -display none \
+                -netdev user,id=net0 \
+                -device e1000,netdev=net0 \
+                -device usb-ehci,id=ehci \
+                -device usb-tablet,bus=ehci.0 \
+                -drive file=/mnt/virtio-win.iso,media=cdrom,if=none,id=cd1 \
+                -device ide-cd,bus=ide.1,drive=cd1 \
+                -name "$VM" &
+            else
+              sudo qemu-system-x86_64 \
+                -enable-kvm \
+                -cpu host \
+                -smp ${VCPUS} \
+                -m ${RAM}G \
+                -hda "$DISK_PATH" \
+                -boot c \
+                -vnc :0,password=on \
+                -monitor tcp:localhost:4444,server,nowait \
+                -display none \
+                -netdev user,id=net0 \
+                -device e1000,netdev=net0 \
+                -device usb-ehci,id=ehci \
+                -device usb-tablet,bus=ehci.0 \
+                -drive file=/mnt/virtio-win.iso,media=cdrom,if=none,id=cd1 \
+                -device ide-cd,bus=ide.1,drive=cd1 \
+                -name "$VM" &
+            fi
+          fi
+          VNC_PASS="${{ github.event.inputs.vnc_password }}"
+          while ! nc -z localhost 4444; do
+            sleep 1
+          done
+          echo "change vnc password $VNC_PASS" | nc -q 1 localhost 4444
+          echo "VNC password applied successfully!"
+
+      - name: Create desktop VNC launcher
+        run: |
+          DESKTOP_PATH="/home/${USERNAME}/Desktop"
+          SCRIPT_PATH="${DESKTOP_PATH}/Connect_VNC.sh"
+          mkdir -p "$DESKTOP_PATH"
+          cat <<EOF > "$SCRIPT_PATH"
+          if [ "${{ env.CONNECTION_TYPE }}" = "Tailscale" ]; then
+            vncviewer ${{ env.CONNECTION_IP }}:5900 -FullScreen -MenuKey F8 &
+          else
+            if [ "${{ github.event.inputs.connection_program }}" = "VNC" ]; then
+              vncviewer ${{ env.CONNECTION_IP }} -FullScreen -MenuKey F8 &
+            else
+              vncviewer localhost:5900 -FullScreen -MenuKey F8 &
+            fi
+          fi
+          sleep 3 && wmctrl -r "VNC Viewer" -b add,above
+          EOF
+          chmod +x "$SCRIPT_PATH"
+          chown ${USERNAME}:${USERNAME} "$SCRIPT_PATH"
+          echo "Desktop launcher created at: $SCRIPT_PATH"
+
+      - name: Expose selected port with Ngrok
+        if: ${{ github.event.inputs.connection_method == 'ngrok' }}
+        run: |
+          echo "Starting Ngrok tunnel for selected connection method..."
+          if [ "${{ github.event.inputs.connection_program }}" = "RDP" ]; then
+            nohup ngrok tcp 3389 --region=eu > ngrok_rdp.log 2>&1 &
+          elif [ "${{ github.event.inputs.connection_program }}" = "VNC" ]; then
+            nohup ngrok tcp 5900 --region=eu > ngrok_vnc.log 2>&1 &
+          elif [ "${{ github.event.inputs.connection_program }}" = "NoMachine" ]; then
+            nohup ngrok tcp 4000 --region=eu > ngrok_nx.log 2>&1 &
+          else
+            echo "::error::Invalid connection_program. Choose RDP, VNC, or NoMachine."
+            exit 1
+          fi
+          sleep 10
+          curl --silent http://127.0.0.1:4040/api/tunnels > tunnels.json
+          RDP_URL=$(jq -r '.tunnels[] | select(.config.addr=="localhost:3389") | .public_url' tunnels.json)
+          VNC_URL=$(jq -r '.tunnels[] | select(.config.addr=="localhost:5900") | .public_url' tunnels.json)
+          NX_URL=$(jq -r '.tunnels[] | select(.config.addr=="localhost:4000") | .public_url' tunnels.json)
+          echo "RDP_URL=$RDP_URL" >> $GITHUB_ENV
+          echo "VNC_URL=$VNC_URL" >> $GITHUB_ENV
+          echo "NX_URL=$NX_URL" >> $GITHUB_ENV
+          if [ "${{ github.event.inputs.connection_program }}" = "RDP" ]; then
+            echo "RDP: $RDP_URL"
+            echo "CONNECTION_IP=$RDP_URL" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.connection_program }}" = "VNC" ]; then
+            echo "VNC: $VNC_URL"
+            echo "CONNECTION_IP=$VNC_URL" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.connection_program }}" = "NoMachine" ]; then
+            echo "NoMachine: $NX_URL"
+            echo "CONNECTION_IP=$NX_URL" >> $GITHUB_ENV
+          fi
+
+      - name: Connection Information and Keep Alive
+        run: |
+          echo "Thanks to MR.English2008 for this perfect work"
+          echo
+          echo "=== CONNECTION INFORMATION ==="
+          echo "RDP Username: ${USERNAME}"
+          echo "RDP Password: ${PASSWORD}"
+          echo
+          echo "Connection Type: ${{ env.CONNECTION_TYPE }}"
+          echo "Program Selected: ${{ github.event.inputs.connection_program }}"
+          echo
+          if [ "${{ env.CONNECTION_TYPE }}" = "Tailscale" ]; then
+            echo "Tailscale IP:"
+            sudo tailscale ip -4 || true
+            echo
+            echo ">>> RDP Connection: ${{ env.CONNECTION_IP }}"
+            echo ">>> VNC Connection: ${{ env.CONNECTION_IP }}:5900"
+            echo ">>> NoMachine Connection: ${{ env.CONNECTION_IP }}:4000"
+          else
+            if [ "${{ github.event.inputs.connection_program }}" = "RDP" ]; then
+              echo ">>> RDP (Ngrok): ${{ env.RDP_URL }}"
+            elif [ "${{ github.event.inputs.connection_program }}" = "VNC" ]; then
+              echo ">>> VNC (Ngrok): ${{ env.VNC_URL }}"
+            elif [ "${{ github.event.inputs.connection_program }}" = "NoMachine" ]; then
+              echo ">>> NoMachine (Ngrok): ${{ env.NX_URL }}"
+            fi
+          fi
+          echo
+          echo "NOTE: if you connect with RDP or VNC you have to click on Connect_VNC.sh to open the qemu VM"  
+          echo  
+          echo "NOTE: if you did connect with RDP or NoMachine and open Connect_VNC.sh you will not be able to connect to VNC unless you disconnect from RDP or NoMachine"  
+          echo  
+          echo "NOTE: to disconnect type F8 from client keyboard a menu will appear click on Disconnect then you will be able to connect with VNC viewer again"  
+          echo   
+          echo "Have fun"
+          
+          RUNTIME="${{ github.event.inputs.runtime }}"
+          UPLOAD_QCOW2="${{ github.event.inputs.upload_qcow2 }}"
+          VM="${{ github.event.inputs.vm_name }}"
+          MNT_PATH="/mnt"
+
+          echo "Keeping the session alive for ${RUNTIME} minutes..."
+          if [[ "$UPLOAD_QCOW2" == "yes" && "$RUNTIME" -gt 325 ]]; then
+              RUNTIME=325
+          fi
+          sleep $((RUNTIME * 60))
+          echo "Session ended after ${RUNTIME} minutes."
+          
+      - name: Compressing and uploading the QCOW2 file
+        if: always()
+        run: |
+          sudo pkill -9 qemu || true
+          if [[ "$UPLOAD_QCOW2" == "yes" ]]; then
+ 
+            DATE=$(date +%d-%m-%Y)
+            echo "Compressing QCOW2 file to 7z..."
+            sudo 7z a -t7z -mx=9 "/mnt/${VM}-${DATE}.7z" "/mnt/${VM}.qcow2"
+      
+            echo "Starting upload using MegaTools..."
+            TARGET_FILE="${VM}-${DATE}.7z"
+            TARGET_PATH="/mnt/$TARGET_FILE"
+            
+            echo "Setting up MegaTools configuration file..."
+            touch .megarc
+            echo "[Login]" > .megarc
+            echo "Username = $MEGA_EMAIL" >> .megarc
+            echo "Password = $MEGA_PASSWORD" >> .megarc
+            echo "MEGA.email = $MEGA_EMAIL"
+            echo "MEGA.Password = $MEGA_PASSWORD"
+            megals > /dev/null 2>&1
+            echo " list /mnt files "
+            ls -lh /mnt | grep -E '\.7z$|\.qcow2$|\.iso$' | awk '{split($5,size,""); if($5 ~ /G/){print $9, $5} else {printf "%s %.2fG\n", $9, $5/1024/1024/1024}}'
+            sudo cp .megarc /mnt
+            echo " uploading qcow2 file to mega"
+            sudo megaput "/mnt/${VM}-${DATE}.7z" --path /Root
+            echo "getting the download link"
+            DOWNLOAD_LINK=$(sudo megaexport /Root/"${VM}-${DATE}.7z")
+            echo "Download link: $DOWNLOAD_LINK"
+          else
+            echo "Skipped uploading Compressed QCOW2 file."
+          fi
+          
+          
