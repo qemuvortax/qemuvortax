@@ -1,6 +1,6 @@
 ---
 
-# Qemu-Vortax V 2.0
+# Qemu-Vortax V 2.1
 ![Qemu-Vortax](assets/qemuvortax.png)
 
 Run any operating system (ISO, QCOW2, or compressed archive) directly on **GitHub Actions** with full graphical access through **RDP**, **VNC** (Password Protected) and **NoMachine** Via **Tailscale** and **Ngrok**. Preserve your VM disk using **Automatic MEGA Upload**.
@@ -117,8 +117,8 @@ Go to **Settings → Secrets → Actions → New repository secret** and add the
 | `win10` | QCOW2 | <img src="assets/win10.png" alt="Win10" width="240" height="240"> | Windows 10 stable release with mainstream app support. |
 | `win8.1` | QCOW2 | <img src="assets/win8.1.png" alt="Win8.1" width="240" height="240"> | Windows 8.1 with modern UI and improved performance. |
 | `win7` | QCOW2 | <img src="assets/win7.png" alt="Win7" width="240" height="240"> | Windows 7 Professional with classic interface and broad software support. |
-| `winVista` | QCOW2 | <img src="assets/winVista.png" alt="WinVista" width="240" height="240"> | Windows Vista with Aero interface and legacy support. |
-| `winXP` | QCOW2 | <img src="assets/winXP.png" alt="WinXP" width="240" height="240"> | Windows XP classic edition, lightweight and legacy software compatible. |
+| `Vista` | QCOW2 | <img src="assets/winVista.png" alt="WinVista" width="240" height="240"> | Windows Vista with Aero interface and legacy support. |
+| `XP` | QCOW2 | <img src="assets/winXP.png" alt="WinXP" width="240" height="240"> | Windows XP classic edition, lightweight and legacy software compatible. |
 
 > All previous releases (V1.3, V1.4, V1.5, V1.6, V1.7, V1.8, V1.9, v2.0) are included as previous released in [Releases](https://github.com/qemuvortax/Qemu-Vortax/releases) folder.
 
