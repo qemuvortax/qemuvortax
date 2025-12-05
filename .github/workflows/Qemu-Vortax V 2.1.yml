@@ -164,7 +164,7 @@ jobs:
           ISO_URLS["bliss"]="https://dn720203.ca.archive.org/0/items/Bliss-v15.9-x86_64-OFFICIAL-gapps-20240114/Bliss-v15.9-x86_64-OFFICIAL-gapps-20240114.iso"
           ISO_URLS["cutefish"]="https://netix.dl.sourceforge.net/project/cutefish-ubuntu/ISO/Ubuntu/CutefishOS-22.04.0-YoYo-beta-amd64.iso?viasf=1"
           ISO_URLS["deepin"]="https://cdimage-cdn77.deepin.com/deepin-cd/25.0.1/amd64/deepin-desktop-community-25.0.1-amd64.iso"
-          ISO_URLS["garuda_mokka"]="https://r2.garudalinux.org/iso/garuda/mokka/251002/garuda-mokka-linux-zen-251002.iso?r2request"
+          ISO_URLS["garuda_mokka"]="https://iso.builds.garudalinux.org/iso/latest/garuda/mokka/latest.iso?r2=1"
           ISO_URLS["kali"]="https://kali.download/base-images/kali-2025.3/kali-linux-2025.3-live-amd64.iso"
           ISO_URLS["manjaro"]="https://download.manjaro.org/gnome/25.0.10/manjaro-gnome-25.0.10-251013-linux612.iso"
           ISO_URLS["mint"]="https://pub.linuxmint.io/stable/22.2/linuxmint-22.2-cinnamon-64bit.iso"
