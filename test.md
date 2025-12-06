@@ -1,176 +1,99 @@
-### 📌 **Select the Windows version you want to install**
-> Click on a name to jump directly 👇
+## Xp
+        https://archive.org/download/windows-xp-all-sp-msdn-iso-files-en-de-ru-tr-x86-x64/en_win_xp_pro_x64_with_sp2_vl_x13-41611.iso
 
-🔗 | 🖥️ Supported Windows Versions
----|---
-💿 **[Windows XP](#-windows-xp)** |
-💿 **[Windows Vista](#-windows-vista)** |
-💿 **[Windows 7](#-windows-7)** |
-💿 **[Windows 8.1](#-windows-81)** |
-💿 **[Windows 10](#-windows-10)** |
-💿 **[Windows 11](#-windows-11)** |
+        Supermium
+        Supermium needs at least XP SP1, SS3, and around 2 GB of RAM to function properly.
 
----
+        A screenshot of Supermium running on XP
+        Supermium running
+        Open Internet Explorer (or whatever browser you have installed)
+        Navigate to http://win32subsystem.live/supermium/legacy/
+        Download the Setup executable for your VM's bit width and run it
+        You will get a few options in the setup. All of them are optional but I recommend installing the Noto Emoji font and creating shortcuts for Supermium. Hit OK
+        If all went well, Supermium should be working!
 
-# 🧩 Windows XP
+        *Use a legal license key to activate.*
 
-📎 **Download ISO**
+## Vista
+        https://computernewb.com/isos/windows/Windows%20Vista%20SP2%20x64.iso
 
-https://archive.org/download/windows-xp-all-sp-msdn-iso-files-en-de-ru-tr-x86-x64/en_win_xp_pro_x64_with_sp2_vl_x13-41611.iso
+        Supermium
+        Supermium is a Chromium fork that works in Vista. It needs around 2 GB of RAM to function.
 
-🖼️ **Screenshot Placeholder**
-`https://via.placeholder.com/600x350?text=Windows+XP+Screenshot`
+        Supermium running in Windows Vista under QEMU
+        Open Internet Explorer (or whatever browser you have installed)
+        Navigate to http://win32subsystem.live/supermium/legacy/
+        Download the Setup executable for your VM's bit width and run it
+        You will get a few options in the setup. All of them are optional but I recommend installing the Noto Emoji font and creating shortcuts for Supermium. Hit OK
+        If all went well, Supermium should be working!
 
-### 🌐 Install Supermium Browser
-Supermium requires XP SP1+, SS3 enabled, and 2GB RAM minimum.
+        *Use a legal activation method for Windows Vista.*
 
-**Steps:**
-1. Open Internet Explorer (or any installed browser)
-2. Go to:
+## win7
+        https://computernewb.com/isos/windows/en_windows_7_ultimate_with_sp1_x64_dvd_u_677332.iso
 
-http://win32subsystem.live/supermium/legacy/
+        Supermium
+        Supermium is a Chromium fork that works in Windows 7. It needs around 2 GB of RAM to function.
 
-3. Download the correct installer (32/64-bit) and run it
-4. Recommended: Install Noto Emoji font + create shortcuts
-5. Done! Supermium should now work 🚀
+        Supermium running in Windows 7 under QEMU
+        Open Internet Explorer (or whatever browser you have installed)
+        Navigate to http://win32subsystem.live/supermium/legacy/
+        Download the Setup executable for your VM's bit width and run it
+        You will get a few options in the setup. All of them are optional but I recommend installing the Noto Emoji font and creating shortcuts for Supermium. Hit OK
+        If all went well, Supermium should be working!
 
-🔑 **Activation Key (during setup)**
+        *Use a legal activation method for Windows 7.*
 
-VCFQD-V9FX9-46WVH-K3CD4-4J3JM
+## win8.1
+        https://computernewb.com/isos/windows/en_windows_embedded_8_1_industry_enterprise_x64_dvd_2710518.iso
 
----
+        Supermium
+        Supermium is a Chromium fork that works in Windows 8.1. It needs around 2 GB of RAM to function.
 
-# 🪟 Windows Vista
+        Supermium running in Windows 8.1 under QEMU
+        Open Internet Explorer (or whatever browser you have installed)
+        Navigate to http://win32subsystem.live/supermium/legacy/
+        Download the Setup executable for your VM's bit width and run it
+        You will get a few options in the setup. All of them are optional but I recommend installing the Noto Emoji font and creating shortcuts for Supermium. Hit OK
+        If all went well, Supermium should be working!
 
-📎 **Download ISO**
+        If you don't like the Windows 8.1 Start Screen (does anyone?) you can download and install the latest release of Open Shell https://github.com/Open-Shell/Open-Shell-Menu/releases/latest to get a customizable start menu that by default looks similar to Windows 7
 
-https://computernewb.com/isos/windows/Windows%20Vista%20SP2%20x64.iso
+        *Use a legal activation method for Windows 8.1.*
 
-🖼️ Screenshot Placeholder  
-`https://via.placeholder.com/600x350?text=Windows+Vista`
+## win10
+        windows_10_iot_enterprise_ltsc
+        https://computernewb.com/isos/windows/en-us_windows_10_iot_enterprise_ltsc_2021_x64_dvd_257ad90f.iso
 
-### 🌐 Install Supermium
-Same installation steps as XP.
+        windows_10_stock
+        https://computernewb.com/isos/windows/Windows%2010%2022H2.iso
 
-### 🔓 Activation (Using Microsoft Activation Scripts)
-1. Install **PowerShell 2.0**
-2. Install **.NET Framework 3.5 SP1**
-3. Download MAS Script:
+        for browser you can use edge or download chrome from it
 
-https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/refs/heads/master/MAS/All-In-One-Version-KL/MAS_AIO.cmd
+        *Use a legal activation method for Windows 10.*
 
-4. Run script → Choose:
+## win11
+        windows_11_iot_enterprise_ltsc
+        https://computernewb.com/isos/windows/en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso
 
-3 → TSForge 1 → Activate Windows
+        windows_11_stock
+        https://computernewb.com/isos/windows/Windows%2011%2024H2.iso
 
----
+        Bypassing Installation Requirements
+        The IoT Enterprise LTSC ISO does not have restrictive installation requirements like the stock ISOs do. If you chose that ISO, skip this section.
 
-# 🪟 Windows 7
+        Consumer versions of Windows 11 have the arbitrary requirements of UEFI with Secure Boot enabled, TPM 2.0, and some CPU features. While it's technically possible to virtualize these in QEMU, it's quite a pain in the ass. Instead, bypassing these requirements is pretty simple.
 
-📎 **Download ISO**
+        Once setup reaches the language selection screen, press Shift + F10 to open a command prompt. Run the following commands:
 
-https://computernewb.com/isos/windows/en_windows_7_ultimate_with_sp1_x64_dvd_u_677332.iso
+        reg add HKLM\SYSTEM\Setup\LabConfig
+        reg add HKLM\SYSTEM\Setup\LabConfig /t REG_DWORD /v BypassTPMCheck /d 1
+        reg add HKLM\SYSTEM\Setup\LabConfig /t REG_DWORD /v BypassSecureBootCheck /d 1
+        reg add HKLM\SYSTEM\Setup\LabConfig /t REG_DWORD /v BypassRAMCheck /d 1
+        reg add HKLM\SYSTEM\Setup\LabConfig /t REG_DWORD /v BypassCPUCheck /d 1
 
-🖼️ Screenshot Placeholder  
-`https://via.placeholder.com/600x350?text=Windows+7`
+        You can now close command prompt and install Windows 11 as normal
 
-### 🌐 Install Supermium
-Same steps as Vista/Xp. Requires 2GB RAM minimum.
+        for browser you can use edge or download chrome from it
 
-### 🔓 Activation
-
-3 → TSForge 1 → Activate Windows
-
----
-
-# 🪟 Windows 8.1
-
-📎 **Download ISO**
-
-https://computernewb.com/isos/windows/en_windows_embedded_8_1_industry_enterprise_x64_dvd_2710518.iso
-
-🖼️ Screenshot Placeholder  
-`https://via.placeholder.com/600x350?text=Windows+8.1`
-
-### 🌐 Install Supermium
-Same procedure as Windows 7.
-
-### 🎨 Optional: Classic Start Menu
-Install **Open Shell**:
-
-https://github.com/Open-Shell/Open-Shell-Menu/releases/latest
-
-### 🔓 Activation
-
-3 → TSForge 1 → Activate Windows
-
----
-
-# 🪟 Windows 10
-
-### 📎 Download Links
-
-| Version | Link |
-|--------|------|
-| 🔧 **Windows 10 IoT Enterprise LTSC 2021** | `https://computernewb.com/isos/windows/en-us_windows_10_iot_enterprise_ltsc_2021_x64_dvd_257ad90f.iso` |
-| 🏠 **Windows 10 22H2 (Stock)** | `https://computernewb.com/isos/windows/Windows%2010%2022H2.iso` |
-
-🖼️ Screenshot Placeholder  
-`https://via.placeholder.com/600x350?text=Windows+10`
-
-### 🌐 Browser
-Edge is pre-installed. You can download Chrome from it.
-
-### 🔓 Activation
-
-3 → TSForge 1 → Activate Windows
-
----
-
-# 🪟 Windows 11
-
-### 📎 Download Links
-
-| Version | Link |
-|---------|------|
-| 🔧 **Windows 11 IoT Enterprise LTSC 2024** | `https://computernewb.com/isos/windows/en-us_windows_11_iot_enterprise_ltsc_2024_x64_dvd_f6b14814.iso` |
-| 🏠 **Windows 11 24H2 (Stock)** | `https://computernewb.com/isos/windows/Windows%2011%2024H2.iso` |
-
-🖼️ Screenshot Placeholder  
-`https://via.placeholder.com/600x350?text=Windows+11`
-
-### 🔧 Bypass Secure Boot / TPM / CPU / RAM Requirements
-> **Only required for the Stock version**
-
-1. When you reach the language selection screen, press:
-
-Shift + F10
-
-2. Execute the following commands **one by one**:
-
-reg add HKLM\SYSTEM\Setup\LabConfig
-
-
-
-reg add HKLM\SYSTEM\Setup\LabConfig /t REG_DWORD /v BypassTPMCheck /d 1
-
-
-
-reg add HKLM\SYSTEM\Setup\LabConfig /t REG_DWORD /v BypassSecureBootCheck /d 1
-
-
-
-reg add HKLM\SYSTEM\Setup\LabConfig /t REG_DWORD /v BypassRAMCheck /d 1
-
-
-
-reg add HKLM\SYSTEM\Setup\LabConfig /t REG_DWORD /v BypassCPUCheck /d 1
-
-### 🌐 Browser
-Edge is pre-installed. Chrome can be downloaded normally.
-
-### 🔓 Activation
-
-3 → TSForge 1 → Activate Windows
-
----
+        *Use a legal activation method for Windows 11.*
