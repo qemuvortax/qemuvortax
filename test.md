@@ -14,8 +14,8 @@
 
 # 🧩 Windows XP
 
-🖼️ **Screenshot Placeholder**
-`https://via.placeholder.com/600x350?text=Windows+XP+Screenshot`
+![Qemu-Vortax](assets/win-install/QEMUXP.png)
+7Desktop.png, 10Desktop.png, 11Desktop.png, 81Desktop.png, , Windows_Vista.png
 
 📎 **Download ISO**
 ```text
@@ -46,6 +46,8 @@ VCFQD-V9FX9-46WVH-K3CD4-4J3JM
 
 # 🪟 Windows Vista
 
+![Qemu-Vortax](assets/win-install/Windows_Vista.png)
+
 📎 **Download ISO**
 ```text
 https://computernewb.com/isos/windows/Windows%20Vista%20SP2%20x64.iso
@@ -69,6 +71,8 @@ https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/refs/h
 
 # 🪟 Windows 7
 
+![Qemu-Vortax](assets/win-install/7Desktop.png)
+
 📎 **Download ISO**
 ```text
 https://computernewb.com/isos/windows/en_windows_7_ultimate_with_sp1_x64_dvd_u_677332.iso
@@ -85,6 +89,8 @@ Same steps as Vista/Xp. Requires 2GB RAM minimum.
 
 # 🪟 Windows 8.1
 
+![Qemu-Vortax](assets/win-install/81Desktop.png)
+
 📎 **Download ISO**
 ```text
 https://computernewb.com/isos/windows/en_windows_embedded_8_1_industry_enterprise_x64_dvd_2710518.iso
@@ -100,6 +106,8 @@ Same procedure as Windows 7.
 
 
 # 🪟 Windows 10
+
+![Qemu-Vortax](assets/win-install/10Desktop.png)
 
 ### 📎 Download Links
 
@@ -124,6 +132,8 @@ Edge is pre-installed. You can download Chrome from it.
 
 # 🪟 Windows 11
 
+![Qemu-Vortax](assets/win-install/11Desktop.png)
+
 ### 📎 Download Links
 
 🔧 **Windows 11 IoT Enterprise LTSC 2024** 
@@ -140,7 +150,7 @@ https://computernewb.com/isos/windows/Windows%2011%2024H2.iso
 
 1. When you reach the language selection screen, press:
 
-Shift + F10
+> **Shift + F10**
 
 2. Execute the following commands **one by one**:
 ```text
