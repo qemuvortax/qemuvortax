@@ -1,6 +1,6 @@
 ---
 
-# Qemu-Vortax V 2.1
+# Qemu-Vortax V 2.2
 ![Qemu-Vortax](assets/qemuvortax.png)
 
 Run any operating system (ISO, QCOW2, or compressed archive) directly on **GitHub Actions** with full graphical access through **RDP**, **VNC** (Password Protected) and **NoMachine** Via **Tailscale** and **Ngrok**. Preserve your VM disk using **Automatic MEGA Upload**.
@@ -11,7 +11,7 @@ Run any operating system (ISO, QCOW2, or compressed archive) directly on **GitHu
 
 ## ⚙️ Overview
 
-**Qemu-Vortax V 2.1** is an educational and experimental workflow that boots complete virtual machines inside GitHub Actions using QEMU + XFCE.
+**Qemu-Vortax V 2.2** is an educational and experimental workflow that boots complete virtual machines inside GitHub Actions using QEMU + XFCE.
 You can run Linux distributions, Android builds, or pre-made cloud images (ISO/QCOW2) from any source.
 
 > 🧠 For educational use only.
@@ -68,7 +68,7 @@ Go to **Settings → Secrets → Actions → New repository secret** and add the
 
 ---
 
-## 🧾 Inputs (Updated for V 2.1)
+## 🧾 Inputs
 
 | Input | Description | Example |
 |-------|--------------|----------|
@@ -98,29 +98,33 @@ Go to **Settings → Secrets → Actions → New repository secret** and add the
 ## 🧩 Pre-set Systems
 
 | System | Boot Type | Screenshot | Description |
-|--------|------------|--------------|-------------|
-| `bazite` | ISO | <img src="assets/bazite.png" alt="Bazite" width="240" height="240"> | Minimal distro focused on performance and clean design. |
+|--------|-----------|-------------|-------------|
+| `bazite` | ISO/QCOW2 | <img src="assets/bazite.png" alt="Bazite" width="240" height="240"> | Minimal distro focused on performance and clean design. |
 | `bliss` | ISO/QCOW2 | <img src="assets/bliss.png" alt="Bliss" width="240" height="240"> | Android-based OS with Google Apps pre-installed. |
-| `centos_qcow2` | QCOW2 | Command Line interface | CentOS Stream 10 GenericCloud image for stable enterprise environments. |
-| `cutefish` | ISO | <img src="assets/cutefish.png" alt="Cutefish" width="240" height="240"> | CutefishOS 22.04 with a clean macOS-like interface. |
+| `centos_qcow2` | ISO/QCOW2 | Command Line interface | CentOS Stream 10 GenericCloud image for stable enterprise environments. |
+| `cutefish` | ISO/QCOW2 | <img src="assets/cutefish.png" alt="Cutefish" width="240" height="240"> | CutefishOS 22.04 with a clean macOS-like interface. |
 | `deepin` | ISO/QCOW2 | <img src="assets/deepin.png" alt="Deepin" width="240" height="240"> | Deepin Linux with an elegant UI and strong customization. |
-| `garuda_mokka` | ISO | <img src="assets/garuda.png" alt="Garuda" width="240" height="240"> | Garuda Linux Mokka edition for gaming and speed. |
+| `debian` | ISO/QCOW2 | <img src="assets/Debian.png" alt="Debian" width="240" height="240"> | Debian stable GNU/Linux system focusing on reliability and security. |
+| `elementary` | ISO/QCOW2 | <img src="assets/elementary.png" alt="Elementary" width="240" height="240"> | Elementary OS with Pantheon UI, inspired by macOS clean design. |
+| `fedora` | ISO/QCOW2 | <img src="assets/fedora.png" alt="Fedora" width="240" height="240"> | Fedora Workstation with latest technologies and GNOME desktop. |
+| `garuda_mokka` | ISO/QCOW2 | <img src="assets/garuda.png" alt="Garuda" width="240" height="240"> | Garuda Linux Mokka edition for gaming and speed. |
 | `kali` | ISO/QCOW2 | <img src="assets/kali.png" alt="Kali" width="240" height="240"> | Kali Linux for penetration testing and ethical hacking labs. |
-| `manjaro` | ISO | <img src="assets/manjaro.png" alt="Manjaro" width="240" height="240"> | Manjaro GNOME 25.0.10, a fast and user-friendly Arch-based distribution. |
+| `manjaro` | ISO/QCOW2 | <img src="assets/manjaro.png" alt="Manjaro" width="240" height="240"> | Manjaro GNOME 25.0.10, a fast and user-friendly Arch-based distribution. |
 | `mint` | ISO/QCOW2 | <img src="assets/mint.png" alt="Mint" width="240" height="240"> | Linux Mint XFCE edition for smooth and modern experience. |
-| `neon` | ISO | <img src="assets/neon.png" alt="Neon" width="240" height="240"> | KDE Neon with the latest Plasma environment. |
+| `neon` | ISO/QCOW2 | <img src="assets/neon.png" alt="Neon" width="240" height="240"> | KDE Neon with the latest Plasma environment. |
 | `pear` | ISO | <img src="assets/pear.png" alt="Pear" width="240" height="240"> | Pear Linux, macOS-style Ubuntu derivative focused on elegance and simplicity. |
 | `pop_os` | ISO/QCOW2 | <img src="assets/popos.png" alt="PopOS" width="240" height="240"> | Pop!\_OS optimized for developers and creators. |
-| `ubuntu` | ISO | <img src="assets/ubuntu.png" alt="Ubuntu" width="240" height="240"> | Classic Ubuntu desktop with XFCE, stable and lightweight. |
-| `debian_qcow2` | QCOW2 | Command Line interface | Debian 12 Bookworm cloud image preconfigured for QEMU. |
-| `win11` | QCOW2 | <img src="assets/win11.png" alt="Win11" width="240" height="240"> | Windows 11 latest release optimized for security and UI. |
-| `win10` | QCOW2 | <img src="assets/win10.png" alt="Win10" width="240" height="240"> | Windows 10 stable release with mainstream app support. |
-| `win8.1` | QCOW2 | <img src="assets/win8.1.png" alt="Win8.1" width="240" height="240"> | Windows 8.1 with modern UI and improved performance. |
-| `win7` | QCOW2 | <img src="assets/win7.png" alt="Win7" width="240" height="240"> | Windows 7 Professional with classic interface and broad software support. |
-| `Vista` | QCOW2 | <img src="assets/winVista.png" alt="WinVista" width="240" height="240"> | Windows Vista with Aero interface and legacy support. |
-| `XP` | QCOW2 | <img src="assets/winXP.png" alt="WinXP" width="240" height="240"> | Windows XP classic edition, lightweight and legacy software compatible. |
-
-> All previous releases (V1.3, V1.4, V1.5, V1.6, V1.7, V1.8, V1.9, v2.0) are included as previous released in [Releases](https://github.com/qemuvortax/Qemu-Vortax/releases) folder.
+| `ubuntu` | ISO/QCOW2 | <img src="assets/ubuntu.png" alt="Ubuntu" width="240" height="240"> | Classic Ubuntu desktop with XFCE, stable and lightweight. |
+| `debian_qcow2` | ISO/QCOW2 | Command Line interface | Debian 12 Bookworm cloud image preconfigured for QEMU. |
+| `winux` | ISO/QCOW2 | <img src="assets/winux.png" alt="Winux" width="240" height="240"> | Winux hybrid-style distro aiming to combine Windows look with Linux power. |
+| `zorin` | ISO/QCOW2 | <img src="assets/zorin.png" alt="Zorin" width="240" height="240"> | Zorin OS designed for Windows users, simple and modern performance. |
+| `win11` | ISO/QCOW2 | <img src="assets/win11.png" alt="Win11" width="240" height="240"> | Windows 11 latest release optimized for security and UI. |
+| `win10` | ISO/QCOW2 | <img src="assets/win10.png" alt="Win10" width="240" height="240"> | Windows 10 stable release with mainstream app support. |
+| `win8.1` | ISO/QCOW2 | <img src="assets/win8.1.png" alt="Win8.1" width="240" height="240"> | Windows 8.1 with modern UI and improved performance. |
+| `win7` | ISO/QCOW2 | <img src="assets/win7.png" alt="Win7" width="240" height="240"> | Windows 7 Professional with classic interface and broad software support. |
+| `Vista` | ISO/QCOW2 | <img src="assets/winVista.png" alt="WinVista" width="240" height="240"> | Windows Vista with Aero interface and legacy support. |
+| `XP` | ISO/QCOW2 | <img src="assets/winXP.png" alt="WinXP" width="240" height="240"> | Windows XP classic edition, lightweight and legacy software compatible. |
+> All previous releases (V1.3, V1.4, V1.5, V1.6, V1.7, V1.8, V1.9, v2.0, 2.1) are included as previous released in [Releases](https://github.com/qemuvortax/Qemu-Vortax/releases) folder.
 
 ---
 
@@ -161,7 +165,7 @@ When `upload_qcow2` is set to `yes`, the following information will be provided 
 ## 🧠 Credits
 
 Developed by **Mohamed Ahmed Saad**
-Project: **Qemu-Vortax V 2.1**
+Project: **Qemu-Vortax V 2.2**
 Goal: Simplify, secure, and accelerate virtual machine testing in the cloud.
 
 ---
